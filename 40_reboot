@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+source ./common.sh
+
+
+DEV=/dev/ttyACM0
+
+test -r $DEV || abort "Cannot access $DEV. Ensure reader is connected and in recovery mode."
+
+
+cat >/tmp/prst2_reboot.minicom <<EOF
+send ""
+
+expect {
+    "login:"
+}
+
+send root
+
+expect {
+    "[root (ttyGS0)]#"
+}
+
+send reboot
+
+exit
+EOF
+
+
+minicom -o -D $DEV -S /tmp/prst2_reboot.minicom
+

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -e
+source ./common.sh
+
+############################################################
+# Detect SD
+
+announce_step "Detect Micro-SD"
+
+SD_DEV=""
+
+for DEV in /dev/sd?; do
+    if udisks --show-info $DEV | grep PRS-XXX >/dev/null; then
+        abort "Reader found but in recovery mode. Reboot in normal mode and retry."
+    fi
+        
+    if udisks --show-info $DEV | egrep 'model:\s+PRS-T2\s+SD$' >/dev/null; then
+        SD_DEV=$DEV
+    fi
+done
+
+if [ -z "$SD_DEV" ]; then
+    abort "Couldn't find Micro-SD card. Ensure reader is connected and NOT in recovery mode."
+else
+    echo "Micro-SD card found at $SD_DEV"
+fi
+
+SD_PARTITION=${SD_DEV}1
+
+if ! udisks --mount $SD_PARTITION >/dev/null; then
+    abort "Could not mount $SD_PARTITION."
+fi
+
+SD_MOUNTPOINT=$(udisks --show-info $SD_PARTITION | grep 'mount paths:' | tr -d ' ' | cut -d: -f2)
+
+echo "Micro-SD card mounted at $SD_MOUNTPOINT"
+
+
+############################################################
+# Remove "OS Files" if necessary and copy it from jailbreak
+
+announce_step "Copy jailbreak files"
+
+if [ -d "$SD_MOUNTPOINT/OS Firmware" ]; then
+    echo "Folder 'OS Firmware' detected, removing before copying jailbreak files."
+    # XXX ask for confirmation
+    rm -rf "$SD_MOUNTPOINT/OS Firmware"
+fi
+
+echo "Copying jailbreak files to Micro-SD"
+cp -vr "packages/jailbreak/OS Firmware" $SD_MOUNTPOINT
+
+echo "Unmounting Micro-SD card."
+udisks --unmount $SD_PARTITION
+
+finish "Jailbreak files copied. Please restart reader in recovery mode"

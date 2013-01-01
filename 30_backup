@@ -1,0 +1,63 @@
+#!/bin/bash
+
+set -e
+
+TARGET_DIR=backup
+
+############################################################
+# Detect reader
+
+TARGET_DEV=""
+
+for DEV in /dev/sd?; do
+    if udisks --show-info $DEV | grep PRS-T2 >/dev/null; then
+        echo "Reader found but not in recovery mode. Exiting.";
+        exit 1
+    fi
+
+    if udisks --show-info $DEV | grep PRS-XXX >/dev/null; then
+        TARGET_DEV=$DEV
+    fi
+done
+
+if [ -z "$TARGET_DEV" ]; then
+    echo "Couldn't find the reader. Exiting."
+    exit 1
+else
+    echo "Reader found at $TARGET_DEV"
+fi
+
+
+############################################################
+# Extra safety checks
+
+if [ ! udisks --show-info $TARGET_DEV | egrep 'count:\s+10$' ]; then
+    echo "Partition count differs than expected. Exiting."
+    exit 1
+fi
+
+if [ ! -r $TARGET_DEV ]; then
+    echo "Don't have permission to read $TARGET_DEV. Exiting."
+    exit 1
+fi
+
+
+############################################################
+# Back up individual partitions
+
+mkdir -p $TARGET_DIR
+
+for PART_NUM in 1 2 4 5 6 7 8 9 10; do
+    TARGET_FILE=$TARGET_DIR/${TARGET_DEV/\/dev\//}$PART_NUM.gz
+    echo
+    echo "Backing up $TARGET_DEV$PART_NUM to $TARGET_FILE... "
+    dd if=$TARGET_DEV$PART_NUM conv=sync,noerror bs=64K | gzip -c > $TARGET_FILE
+done
+
+############################################################
+# Back up entire disk
+
+TARGET_FILE=$TARGET_DIR/${TARGET_DEV/\/dev\//}.gz
+echo "Backing up $TARGET_DEV as a whole to $TARGET_FILE... "
+dd if=$TARGET_DEV conv=sync,noerror bs=64K | gzip -c > $TARGET_FILE
+echo

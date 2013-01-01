@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+source ./common.sh
+
+cd packages
+
+
+############################################################
+# Download packages
+
+announce_step "Download packages"
+
+curl -O "http://projects.mobileread.com/reader/users/porkupan/rupor/ReleasesT2/rescue/20121010/rupor-rescue.7z"
+curl -O "http://projects.mobileread.com/reader/users/porkupan/PRST2/flash%20packages/jailbreak.zip"
+curl -O "http://projects.mobileread.com/reader/users/porkupan/PRST2/flash%20packages/minimal-root-zeam.zip"
+
+############################################################
+# Check integrity
+
+announce_step "Checking integrity"
+
+md5sum -c md5sums
+
+
+############################################################
+# Unpacking
+
+announce_step "Unpacking"
+
+7z x rupor-rescue.7z
+unzip jailbreak.zip
+unzip minimal-root-zeam.zip
+
+finish "Packages downloaded and unpacked"

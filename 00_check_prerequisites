@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+source ./common.sh
+
+############################################################
+# Check prerequisites
+
+announce_step "Check prerequisites"
+
+check_command minicom
+check_command 7z
+check_command udisks
+
+
+finish "Prerequisites found"
