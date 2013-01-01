@@ -20,7 +20,7 @@ curl -O "http://projects.mobileread.com/reader/users/porkupan/PRST2/flash%20pack
 
 announce_step "Checking integrity"
 
-md5sum -c md5sums
+md5sum -c ../packages.md5sums
 
 
 ############################################################
