@@ -3,33 +3,23 @@
 set -e
 source ./common.sh
 
-cd packages
-
-
 ############################################################
-# Download packages
 
-announce_step "Download packages"
+cd packages
+explain "Downloading packages..."
 
 curl -O "http://projects.mobileread.com/reader/users/porkupan/rupor/ReleasesT2/rescue/20121010/rupor-rescue.7z"
-curl -O "http://projects.mobileread.com/reader/users/porkupan/PRST2/flash%20packages/jailbreak.zip"
-curl -O "http://projects.mobileread.com/reader/users/porkupan/PRST2/flash%20packages/minimal-root-zeam.zip"
+curl -O "http://projects.mobileread.com/reader/users/porkupan/rupor/ReleasesT2/jailbreak/20121016/rupor-jailbreak.7z"
+curl -O "http://projects.mobileread.com/reader/users/porkupan/rupor/ReleasesT2/20121222/rupor-minimal.7z"
+curl -O "http://projects.mobileread.com/reader/users/porkupan/rupor/ReleasesT2/adb/20121211/rupor-enable-adb.7z"
+curl -O "http://projects.mobileread.com/reader/users/porkupan/rupor/ReleasesT2/apps2sd/20121211/rupor-enable-asec.7z"
 
-############################################################
-# Check integrity
-
-announce_step "Checking integrity"
-
+explain "Checking integrity..."
 md5sum -c ../packages.md5sums
 
+explain "Unpacking..."
+for PACKAGE in *.7z; do
+    7z x $PACKAGE
+done
 
-############################################################
-# Unpacking
-
-announce_step "Unpacking"
-
-7z x rupor-rescue.7z
-unzip jailbreak.zip
-unzip minimal-root-zeam.zip
-
-finish "Packages downloaded and unpacked"
+finish "Packages downloaded and unpacked. Proceed to next step."

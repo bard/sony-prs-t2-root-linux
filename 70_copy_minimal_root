@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+source ./common.sh
+
+############################################################
+
+explain "Generating EU and RU clean-system.img..."
+cd packages/rupor-minimal
+#bspatch clean-system.img-us clean-system.img-eu us-eu.diff
+#bspatch clean-system.img-us clean-system.img-ru us-ru.diff
+
+explain "Mounting READER filesystem..."
+TARGET=$(prs_mount_reader) || abort "Mounting of READER filesystem failed. Ensure device is connected and not in recovery mode."
+
+explain "Copying minimal root files..."
+rm -vrf $TARGET/updates $TARGET/clean-system.{img,md5} "$TARGET/PRS-T2 Updater.package"
+cp -vr epub sdcard/* $TARGET
+cp -v clean-system.img-eu $TARGET/clean-system.img
+cp -v clean-system.md5-eu $TARGET/clean-system.md5
+cp -v "PRS-T2 Updater.package-eu" "$TARGET/PRS-T2 Updater.package"
+
+explain "Unmounting READER filesystem..."
+prs_unmount_reader
+
+finish "minimal root files copied. Please restart reader in recovery mode and wait for update to finish."

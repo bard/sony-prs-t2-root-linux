@@ -4,13 +4,13 @@ set -e
 source ./common.sh
 
 ############################################################
-# Check prerequisites
 
-announce_step "Check prerequisites"
+explain "Checking prerequisites.."
 
 check_command minicom
 check_command 7z
 check_command udisks
+check_command curl
+check_command bspatch
 
-
-finish "Prerequisites found"
+finish "Prerequisites found. Proceed to next step."

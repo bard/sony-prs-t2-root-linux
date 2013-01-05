@@ -1,11 +1,14 @@
 #!/bin/bash
 
 set -e
+source ./common.sh
 
 TARGET_DIR=backup
 
+abort "Step needs review. Disabled."
+
 ############################################################
-# Detect reader
+# Detect reader whole disk
 
 TARGET_DEV=""
 

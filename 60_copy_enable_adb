@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+source ./common.sh
+
+############################################################
+
+explain "Mounting READER filesystem..."
+TARGET=$(prs_mount_reader) || abort "Mounting of READER filesystem failed. Ensure device is connected and not in recovery mode."
+
+explain "Copying jailbreak files..."
+rm -vrf $TARGET/updates "$TARGET/PRS-T2 Updater.package"
+cd packages/rupor-enable-adb
+cp -v "PRS-T2 Updater.package-eu" "$TARGET/PRS-T2 Updater.package"
+cp -vr sdcard/* $TARGET
+
+explain "Unmounting READER filesystem..."
+prs_unmount_reader
+
+explain "Customizing ~/.android/adb_usb.ini"
+mkdir -p ~/.android
+if [ -f ~/.android/adb_usb.ini ]; then
+    if ! grep 0x054c ~/.android/adb_usb.ini >/dev/null; then
+        echo 0x054c >> ~/.android/adb_usb.ini
+    fi
+else
+    echo 0x054c >> ~/.android/adb_usb.ini
+fi
+
+
+finish "enable-adb files copied. Please restart reader in recovery mode."
